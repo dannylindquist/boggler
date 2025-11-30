@@ -1,0 +1,25 @@
+{
+  "name": "boggle",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch api/main.ts",
+    "build": "bun run type-check",
+    "serve": "bun run api/main.ts",
+    "type-check": "bunx tsc --noEmit",
+    "type-check:watch": "bunx tsc --noEmit --watch"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.0.1",
+    "bun-plugin-tailwind": "^0.0.15",
+    "hono": "^4.6.19",
+    "preact": "^10.25.3",
+    "preact-iso": "^2.8.1",
+    "tailwindcss": "^4.1.17"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "typescript": "^5.0.0",
+    "bun-types": "latest"
+  }
+}
