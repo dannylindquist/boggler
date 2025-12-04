@@ -1,0 +1,926 @@
+{
+  "state": "started",
+  "startTime": 1764823807408,
+  "endTime": 1764823927408,
+  "board": [
+    "R",
+    "A",
+    "N",
+    "F",
+    "O",
+    "B",
+    "T",
+    "N",
+    "I",
+    "S",
+    "A",
+    "C",
+    "V",
+    "E",
+    "S",
+    "U"
+  ],
+  "minWordLength": 3,
+  "gameDuration": 2,
+  "scores": {
+    "duplicateWords": [],
+    "foundWords": {}
+  },
+  "persistentScores": {},
+  "wordList": {
+    "3": [
+      {
+        "word": "ran",
+        "path": "012",
+        "common": true
+      },
+      {
+        "word": "rab",
+        "path": "015",
+        "common": false
+      },
+      {
+        "word": "rat",
+        "path": "016",
+        "common": true
+      },
+      {
+        "word": "rob",
+        "path": "045",
+        "common": true
+      },
+      {
+        "word": "roi",
+        "path": "048",
+        "common": false
+      },
+      {
+        "word": "ant",
+        "path": "126",
+        "common": true
+      },
+      {
+        "word": "ann",
+        "path": "127",
+        "common": false
+      },
+      {
+        "word": "aba",
+        "path": "15a",
+        "common": false
+      },
+      {
+        "word": "nar",
+        "path": "210",
+        "common": false
+      },
+      {
+        "word": "nab",
+        "path": "215",
+        "common": false
+      },
+      {
+        "word": "nat",
+        "path": "216",
+        "common": false
+      },
+      {
+        "word": "ora",
+        "path": "401",
+        "common": false
+      },
+      {
+        "word": "orb",
+        "path": "405",
+        "common": true
+      },
+      {
+        "word": "oar",
+        "path": "410",
+        "common": true
+      },
+      {
+        "word": "oat",
+        "path": "416",
+        "common": false
+      },
+      {
+        "word": "obi",
+        "path": "458",
+        "common": true
+      },
+      {
+        "word": "ose",
+        "path": "49d",
+        "common": true
+      },
+      {
+        "word": "bra",
+        "path": "501",
+        "common": true
+      },
+      {
+        "word": "ban",
+        "path": "512",
+        "common": true
+      },
+      {
+        "word": "bar",
+        "path": "510",
+        "common": true
+      },
+      {
+        "word": "bat",
+        "path": "516",
+        "common": true
+      },
+      {
+        "word": "bor",
+        "path": "540",
+        "common": false
+      },
+      {
+        "word": "boa",
+        "path": "541",
+        "common": true
+      },
+      {
+        "word": "bis",
+        "path": "589",
+        "common": false
+      },
+      {
+        "word": "bac",
+        "path": "5ab",
+        "common": false
+      },
+      {
+        "word": "bas",
+        "path": "5a9",
+        "common": false
+      },
+      {
+        "word": "bae",
+        "path": "5ad",
+        "common": false
+      },
+      {
+        "word": "tan",
+        "path": "612",
+        "common": true
+      },
+      {
+        "word": "tar",
+        "path": "610",
+        "common": true
+      },
+      {
+        "word": "tao",
+        "path": "614",
+        "common": false
+      },
+      {
+        "word": "tab",
+        "path": "615",
+        "common": true
+      },
+      {
+        "word": "tae",
+        "path": "6ad",
+        "common": true
+      },
+      {
+        "word": "tau",
+        "path": "6af",
+        "common": true
+      },
+      {
+        "word": "nae",
+        "path": "7ad",
+        "common": false
+      },
+      {
+        "word": "iba",
+        "path": "851",
+        "common": false
+      },
+      {
+        "word": "iso",
+        "path": "894",
+        "common": false
+      },
+      {
+        "word": "ist",
+        "path": "896",
+        "common": false
+      },
+      {
+        "word": "sob",
+        "path": "945",
+        "common": true
+      },
+      {
+        "word": "sab",
+        "path": "9a5",
+        "common": false
+      },
+      {
+        "word": "sat",
+        "path": "9a6",
+        "common": true
+      },
+      {
+        "word": "san",
+        "path": "9a7",
+        "common": false
+      },
+      {
+        "word": "sac",
+        "path": "9ab",
+        "common": true
+      },
+      {
+        "word": "sib",
+        "path": "985",
+        "common": false
+      },
+      {
+        "word": "sie",
+        "path": "98d",
+        "common": false
+      },
+      {
+        "word": "sea",
+        "path": "9da",
+        "common": true
+      },
+      {
+        "word": "ssu",
+        "path": "9ef",
+        "common": false
+      },
+      {
+        "word": "act",
+        "path": "ab6",
+        "common": true
+      },
+      {
+        "word": "ast",
+        "path": "a96",
+        "common": false
+      },
+      {
+        "word": "ase",
+        "path": "a9d",
+        "common": false
+      },
+      {
+        "word": "ass",
+        "path": "a9e",
+        "common": true
+      },
+      {
+        "word": "aes",
+        "path": "ad9",
+        "common": false
+      },
+      {
+        "word": "cab",
+        "path": "ba5",
+        "common": true
+      },
+      {
+        "word": "cat",
+        "path": "ba6",
+        "common": true
+      },
+      {
+        "word": "can",
+        "path": "ba7",
+        "common": true
+      },
+      {
+        "word": "vis",
+        "path": "c89",
+        "common": true
+      },
+      {
+        "word": "vie",
+        "path": "c8d",
+        "common": true
+      },
+      {
+        "word": "vei",
+        "path": "cd8",
+        "common": false
+      },
+      {
+        "word": "ess",
+        "path": "d9e",
+        "common": true
+      },
+      {
+        "word": "eat",
+        "path": "da6",
+        "common": true
+      },
+      {
+        "word": "ean",
+        "path": "da7",
+        "common": false
+      },
+      {
+        "word": "use",
+        "path": "fed",
+        "common": true
+      }
+    ],
+    "4": [
+      {
+        "word": "rant",
+        "path": "0126",
+        "common": true
+      },
+      {
+        "word": "rann",
+        "path": "0127",
+        "common": false
+      },
+      {
+        "word": "rata",
+        "path": "016a",
+        "common": false
+      },
+      {
+        "word": "roan",
+        "path": "0412",
+        "common": false
+      },
+      {
+        "word": "rose",
+        "path": "049d",
+        "common": true
+      },
+      {
+        "word": "ross",
+        "path": "049e",
+        "common": false
+      },
+      {
+        "word": "anba",
+        "path": "125a",
+        "common": false
+      },
+      {
+        "word": "anta",
+        "path": "126a",
+        "common": false
+      },
+      {
+        "word": "anna",
+        "path": "127a",
+        "common": true
+      },
+      {
+        "word": "arba",
+        "path": "105a",
+        "common": false
+      },
+      {
+        "word": "abac",
+        "path": "15ab",
+        "common": false
+      },
+      {
+        "word": "abas",
+        "path": "15a9",
+        "common": false
+      },
+      {
+        "word": "naos",
+        "path": "2149",
+        "common": false
+      },
+      {
+        "word": "nabs",
+        "path": "2159",
+        "common": false
+      },
+      {
+        "word": "oban",
+        "path": "4512",
+        "common": false
+      },
+      {
+        "word": "osse",
+        "path": "49ed",
+        "common": false
+      },
+      {
+        "word": "bran",
+        "path": "5012",
+        "common": true
+      },
+      {
+        "word": "brat",
+        "path": "5016",
+        "common": true
+      },
+      {
+        "word": "bant",
+        "path": "5126",
+        "common": false
+      },
+      {
+        "word": "bats",
+        "path": "5169",
+        "common": true
+      },
+      {
+        "word": "bora",
+        "path": "5401",
+        "common": true
+      },
+      {
+        "word": "boar",
+        "path": "5410",
+        "common": true
+      },
+      {
+        "word": "boat",
+        "path": "5416",
+        "common": true
+      },
+      {
+        "word": "bose",
+        "path": "549d",
+        "common": false
+      },
+      {
+        "word": "boss",
+        "path": "549e",
+        "common": true
+      },
+      {
+        "word": "bios",
+        "path": "5849",
+        "common": true
+      },
+      {
+        "word": "banc",
+        "path": "5a7b",
+        "common": false
+      },
+      {
+        "word": "bast",
+        "path": "5a96",
+        "common": false
+      },
+      {
+        "word": "base",
+        "path": "5a9d",
+        "common": true
+      },
+      {
+        "word": "bass",
+        "path": "5a9e",
+        "common": true
+      },
+      {
+        "word": "taro",
+        "path": "6104",
+        "common": false
+      },
+      {
+        "word": "tass",
+        "path": "6a9e",
+        "common": false
+      },
+      {
+        "word": "tasu",
+        "path": "6aef",
+        "common": false
+      },
+      {
+        "word": "nast",
+        "path": "7a96",
+        "common": false
+      },
+      {
+        "word": "nasi",
+        "path": "7a98",
+        "common": false
+      },
+      {
+        "word": "isba",
+        "path": "8951",
+        "common": false
+      },
+      {
+        "word": "sora",
+        "path": "9401",
+        "common": false
+      },
+      {
+        "word": "sorb",
+        "path": "9405",
+        "common": false
+      },
+      {
+        "word": "soar",
+        "path": "9410",
+        "common": true
+      },
+      {
+        "word": "star",
+        "path": "9610",
+        "common": true
+      },
+      {
+        "word": "stab",
+        "path": "9615",
+        "common": true
+      },
+      {
+        "word": "sant",
+        "path": "9a76",
+        "common": false
+      },
+      {
+        "word": "seat",
+        "path": "9da6",
+        "common": true
+      },
+      {
+        "word": "acta",
+        "path": "ab61",
+        "common": false
+      },
+      {
+        "word": "asor",
+        "path": "a940",
+        "common": false
+      },
+      {
+        "word": "asta",
+        "path": "a961",
+        "common": false
+      },
+      {
+        "word": "asse",
+        "path": "a9ed",
+        "common": false
+      },
+      {
+        "word": "assi",
+        "path": "ae98",
+        "common": false
+      },
+      {
+        "word": "caba",
+        "path": "ba51",
+        "common": false
+      },
+      {
+        "word": "cant",
+        "path": "ba76",
+        "common": true
+      },
+      {
+        "word": "cast",
+        "path": "ba96",
+        "common": true
+      },
+      {
+        "word": "case",
+        "path": "ba9d",
+        "common": true
+      },
+      {
+        "word": "cass",
+        "path": "ba9e",
+        "common": false
+      },
+      {
+        "word": "cuss",
+        "path": "bfe9",
+        "common": true
+      },
+      {
+        "word": "visa",
+        "path": "c89a",
+        "common": true
+      },
+      {
+        "word": "vise",
+        "path": "c89d",
+        "common": false
+      },
+      {
+        "word": "vest",
+        "path": "cd96",
+        "common": true
+      },
+      {
+        "word": "eats",
+        "path": "da69",
+        "common": true
+      },
+      {
+        "word": "east",
+        "path": "da96",
+        "common": true
+      },
+      {
+        "word": "esca",
+        "path": "deba",
+        "common": false
+      },
+      {
+        "word": "scab",
+        "path": "eba5",
+        "common": true
+      },
+      {
+        "word": "scat",
+        "path": "eba6",
+        "common": true
+      },
+      {
+        "word": "scan",
+        "path": "eba7",
+        "common": true
+      }
+    ],
+    "5": [
+      {
+        "word": "rabat",
+        "path": "015a6",
+        "common": false
+      },
+      {
+        "word": "annat",
+        "path": "127a6",
+        "common": false
+      },
+      {
+        "word": "arose",
+        "path": "1049d",
+        "common": true
+      },
+      {
+        "word": "abase",
+        "path": "15a9d",
+        "common": false
+      },
+      {
+        "word": "orant",
+        "path": "40126",
+        "common": false
+      },
+      {
+        "word": "brant",
+        "path": "50126",
+        "common": false
+      },
+      {
+        "word": "brose",
+        "path": "5049d",
+        "common": false
+      },
+      {
+        "word": "baroi",
+        "path": "51048",
+        "common": false
+      },
+      {
+        "word": "boist",
+        "path": "54896",
+        "common": false
+      },
+      {
+        "word": "biose",
+        "path": "5849d",
+        "common": false
+      },
+      {
+        "word": "basta",
+        "path": "5a961",
+        "common": false
+      },
+      {
+        "word": "bases",
+        "path": "5a9de",
+        "common": true
+      },
+      {
+        "word": "basso",
+        "path": "5ae94",
+        "common": false
+      },
+      {
+        "word": "tabor",
+        "path": "61540",
+        "common": false
+      },
+      {
+        "word": "tasse",
+        "path": "6a9ed",
+        "common": false
+      },
+      {
+        "word": "sabra",
+        "path": "9a501",
+        "common": false
+      },
+      {
+        "word": "satan",
+        "path": "9a612",
+        "common": false
+      },
+      {
+        "word": "sanct",
+        "path": "9a7b6",
+        "common": false
+      },
+      {
+        "word": "caban",
+        "path": "ba512",
+        "common": false
+      },
+      {
+        "word": "cabio",
+        "path": "ba584",
+        "common": false
+      },
+      {
+        "word": "catan",
+        "path": "ba612",
+        "common": false
+      },
+      {
+        "word": "canna",
+        "path": "ba721",
+        "common": false
+      },
+      {
+        "word": "casse",
+        "path": "ba9ed",
+        "common": false
+      },
+      {
+        "word": "cause",
+        "path": "bafed",
+        "common": true
+      },
+      {
+        "word": "cusso",
+        "path": "bfe94",
+        "common": false
+      },
+      {
+        "word": "visor",
+        "path": "c8940",
+        "common": true
+      },
+      {
+        "word": "vista",
+        "path": "c8961",
+        "common": true
+      },
+      {
+        "word": "scant",
+        "path": "eba76",
+        "common": true
+      },
+      {
+        "word": "scase",
+        "path": "eba9d",
+        "common": false
+      },
+      {
+        "word": "suant",
+        "path": "efa76",
+        "common": false
+      }
+    ],
+    "6": [
+      {
+        "word": "rantan",
+        "path": "0126a7",
+        "common": false
+      },
+      {
+        "word": "rabies",
+        "path": "0158d9",
+        "common": true
+      },
+      {
+        "word": "abacus",
+        "path": "15abfe",
+        "common": true
+      },
+      {
+        "word": "bancus",
+        "path": "5a7bfe",
+        "common": false
+      },
+      {
+        "word": "bassie",
+        "path": "5ae98d",
+        "common": false
+      },
+      {
+        "word": "tassie",
+        "path": "6ae98d",
+        "common": false
+      },
+      {
+        "word": "isobar",
+        "path": "894510",
+        "common": false
+      },
+      {
+        "word": "sabora",
+        "path": "9a5401",
+        "common": false
+      },
+      {
+        "word": "sancta",
+        "path": "9a7b61",
+        "common": false
+      },
+      {
+        "word": "cantar",
+        "path": "ba7610",
+        "common": false
+      },
+      {
+        "word": "cassie",
+        "path": "bae98d",
+        "common": false
+      },
+      {
+        "word": "causse",
+        "path": "bafe9d",
+        "common": false
+      }
+    ],
+    "7": [
+      {
+        "word": "tannase",
+        "path": "6127a9d",
+        "common": false
+      },
+      {
+        "word": "isobase",
+        "path": "8945aed",
+        "common": false
+      },
+      {
+        "word": "issuant",
+        "path": "89efa76",
+        "common": false
+      },
+      {
+        "word": "cantaro",
+        "path": "ba76104",
+        "common": false
+      },
+      {
+        "word": "vibrant",
+        "path": "c850126",
+        "common": true
+      },
+      {
+        "word": "scabies",
+        "path": "eba58d9",
+        "common": false
+      },
+      {
+        "word": "suasive",
+        "path": "efa98cd",
+        "common": false
+      }
+    ],
+    "8": [
+      {
+        "word": "orabassu",
+        "path": "4015a9ef",
+        "common": false
+      },
+      {
+        "word": "essorant",
+        "path": "de940126",
+        "common": false
+      }
+    ]
+  },
+  "members": [
+    {
+      "name": "d",
+      "uid": "6e0c26cb-77f7-457a-8584-c9f1cda747ad",
+      "words": []
+    }
+  ]
+}

@@ -32,6 +32,11 @@
   color: white;
 }
 
+.toast-warning {
+  background-color: #f59e0b;
+  color: white;
+}
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);

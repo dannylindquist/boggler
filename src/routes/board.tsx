@@ -7,17 +7,18 @@ export const Board = () => {
   const connection = useContext(ConnectionContext);
   const { events, selection } = useSelection();
   const minWordLength = connection?.state?.minWordLength ?? 3;
-  
+
   return (
     <div class="px-2">
       <div class="text-center mb-4">
-        <p class="text-sm text-gray-300">
-          Minimum word length: <span class="font-bold">{minWordLength}</span> letters
+        <p class="text-sm text-gray-700">
+          Minimum word length: <span class="font-bold">{minWordLength}</span>{" "}
+          letters
         </p>
       </div>
       <div
         {...events}
-        class="grid grid-cols-4 aspect-square bg-gray-400 mx-auto max-w-[400px] gap-0.5 border rounded-xl overflow-hidden"
+        class="grid grid-cols-4 aspect-square bg-gray-400 mx-auto max-w-[400px] gap-0.5 border rounded-xl overflow-hidden shadow-[4px_4px_0] shadow-gray-600"
       >
         {connection?.state?.board.map((row, index) => (
           <div

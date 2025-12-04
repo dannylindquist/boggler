@@ -122,6 +122,9 @@ export class ConnectionModal {
         if (response.ok) {
           showToast(`"${wordLetters.toUpperCase()}" - Good word!`, "success");
           return true;
+        } else if (response.status === 409) {
+          showToast(`"${wordLetters.toUpperCase()}" - You already played this word!`, "warning");
+          return false;
         } else {
           showToast(`"${wordLetters.toUpperCase()}" - Already found!`, "error");
           return false;

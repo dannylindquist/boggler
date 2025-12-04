@@ -87,8 +87,10 @@ app.post("/api/play-word", async (c) => {
 
   const result = room.playWord(userToken, word);
 
-  if (!result) {
+  if (result === false) {
     return c.text("bad", 400);
+  } else if (result === "duplicate") {
+    return c.text("duplicate", 409);
   }
   return c.text("ok");
 });

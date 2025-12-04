@@ -12,23 +12,30 @@ export const Home = () => {
     }
   }
   return (
-    <div class="mx-auto max-w-[300px] border rounded py-3 px-4">
-      <h1>Join the lobby</h1>
-      <form method="post" action="/api/join" onSubmit={onSubmit}>
-        <label class="text-sm text-gray-100">
-          Name:
-          <input
-            class="border px-1 py-1 rounded block w-full text-base"
-            type="text"
-            name="name"
-          />
-        </label>
-        <input
-          class="py-1 px-4 rounded bg-emerald-300 text-gray-900 my-2 text-base"
-          type="submit"
-          value="Join"
-        />
-      </form>
-    </div>
+    <form
+      class="mx-auto max-w-md "
+      method="post"
+      action="/api/join"
+      onSubmit={onSubmit}
+    >
+      <div class="bg-white text-gray-900 rounded shadow-[4px_4px_0] shadow-gray-600">
+        <h1 class="py-3 border-b border-gray-500 px-4">Join the lobby</h1>
+        <div class="px-4 pt-3 pb-5">
+          <label class="text-sm text-gray-800">
+            <span class="block pb-1">Name:</span>
+            <input
+              class="border border-gray-500 px-1 py-1 rounded block w-full text-base shadow-[2px_2px_0] shadow-gray-600"
+              type="text"
+              name="name"
+            />
+          </label>
+        </div>
+      </div>
+      <input
+        class="mt-4 py-2 px-4 rounded bg-white text-gray-900 my-2 text-base shadow-[4px_4px_0] shadow-gray-600"
+        type="submit"
+        value="Join"
+      />
+    </form>
   );
 };

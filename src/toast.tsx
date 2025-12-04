@@ -4,13 +4,13 @@ import { useEffect } from "preact/hooks";
 export interface Toast {
   id: string;
   message: string;
-  type: "success" | "error";
+  type: "success" | "error" | "warning";
   duration?: number;
 }
 
 export const toasts = signal<Toast[]>([]);
 
-export const showToast = (message: string, type: "success" | "error", duration = 3000) => {
+export const showToast = (message: string, type: "success" | "error" | "warning", duration = 3000) => {
   const id = Math.random().toString(36).substr(2, 9);
   const toast: Toast = { id, message, type, duration };
   

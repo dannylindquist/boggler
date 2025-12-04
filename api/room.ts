@@ -202,6 +202,12 @@ export class Room {
       return false;
     }
 
+    // Check if player has already played this word
+    if (member.words.has(word)) {
+      console.log(`Player already played word: ${word}`);
+      return "duplicate";
+    }
+
     console.log("adding word");
     member.words.add(word);
     return true;
