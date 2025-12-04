@@ -9,7 +9,7 @@ export const Lobby = () => {
     <div>
       {connection?.state?.state === "pending" && (
         <form
-          class="mx-auto max-w-md"
+          class="mx-auto max-w-md px-4"
           onSubmit={(e) => {
             e.preventDefault();
             const data = new FormData(e.target as HTMLFormElement);
@@ -100,9 +100,9 @@ export const Lobby = () => {
           </div>
 
           {/* Scores Table */}
-          <div class="bg-white rounded-lg overflow-x-auto mb-4 shadow-[4px_4px_0] shadow-gray-600">
+          <div class="bg-white rounded-lg overflow-x-auto mb-4 shadow-[4px_4px_0] shadow-gray-600 border border-gray-800">
             <table class="w-full min-w-[700px]">
-              <thead class="">
+              <thead class="border-b border-gray-300">
                 <tr>
                   <th class="px-3 py-2 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider whitespace-nowrap">
                     Player

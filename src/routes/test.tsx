@@ -120,9 +120,9 @@ const ComponentShowcase = ({
   title: string;
   children: any;
 }) => (
-  <div class="mb-12 p-6">
+  <div class="mb-12">
     <h2 class="text-2xl font-bold mb-4 text-gray-800 pb-2">{title}</h2>
-    <div class="p-4 rounded">{children}</div>
+    <div class="">{children}</div>
   </div>
 );
 

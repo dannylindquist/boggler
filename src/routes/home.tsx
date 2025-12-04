@@ -13,7 +13,7 @@ export const Home = () => {
   }
   return (
     <form
-      class="mx-auto max-w-md "
+      class="mx-auto max-w-md px-4"
       method="post"
       action="/api/join"
       onSubmit={onSubmit}
