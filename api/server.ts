@@ -82,6 +82,13 @@ app.post("/api/configure-game", async (c) => {
   return c.text("ok");
 });
 
+app.post("/api/reset-scores", async (c) => {
+  const { token: userToken } = await c.req.json();
+  room.resetScores(userToken ?? "");
+
+  return c.text("ok");
+});
+
 app.post("/api/play-word", async (c) => {
   const { token: userToken, word } = await c.req.json();
 

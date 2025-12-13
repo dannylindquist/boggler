@@ -62,6 +62,15 @@ export class Room {
     }
   }
 
+  resetScores(initiator: string) {
+    const members = [...this.members.values()];
+    // verify that the initiator is in the room
+    if (members.some((member) => member.uid === initiator)) {
+      this.persistentScores = {};
+      this.sendState();
+    }
+  }
+
   addMember(name: string, cb: (event: Event) => void) {
     const uuid = crypto.randomUUID();
     this.members.set(name, {

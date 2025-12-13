@@ -73,6 +73,18 @@ export class ConnectionModal {
     }).catch(() => {});
   }
 
+  resetScores() {
+    fetch(`${API_ROOT}/api/reset-scores`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        token: this.uuid,
+      }),
+    }).catch(() => {});
+  }
+
   isWordValid(attemptedWord: string) {
     const words = this._state.peek()?.wordList;
     if (!words) {
