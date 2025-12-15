@@ -133,9 +133,19 @@ export const Lobby = () => {
                     return totalScoreB - totalScoreA;
                   })
                   .map(([name, words]) => {
+                    const contestedWords =
+                      connection?.state?.contestedWords || [];
                     const validWords = words.filter(
                       (word: string) =>
-                        !connection?.state?.scores.duplicateWords.includes(word)
+                        !connection?.state?.scores.duplicateWords.includes(
+                          word
+                        ) && !contestedWords.includes(word)
+                    );
+                    const contestedValidWords = words.filter(
+                      (word: string) =>
+                        !connection?.state?.scores.duplicateWords.includes(
+                          word
+                        ) && contestedWords.includes(word)
                     );
                     const duplicateWords = words.filter((word: string) =>
                       connection?.state?.scores.duplicateWords.includes(word)
@@ -161,12 +171,32 @@ export const Lobby = () => {
                             {validWords.length > 0 && (
                               <div class="flex flex-wrap justify-center gap-1">
                                 {validWords.map((word: string) => (
-                                  <span
+                                  <button
                                     key={word}
-                                    class="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-600 text-white rounded"
+                                    onClick={() =>
+                                      connection?.contestWord(name, word)
+                                    }
+                                    class="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition-colors"
+                                    title="Click to contest this word"
                                   >
                                     {word}
-                                  </span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            {contestedValidWords.length > 0 && (
+                              <div class="flex flex-wrap justify-center gap-1">
+                                {contestedValidWords.map((word: string) => (
+                                  <button
+                                    key={word}
+                                    onClick={() =>
+                                      connection?.contestWord(name, word)
+                                    }
+                                    class="inline-block px-1.5 py-0.5 text-xs font-medium bg-orange-600 text-white rounded line-through opacity-75 hover:bg-orange-700 cursor-pointer transition-colors"
+                                    title="Contested - click to un-contest"
+                                  >
+                                    {word}
+                                  </button>
                                 ))}
                               </div>
                             )}
@@ -194,6 +224,11 @@ export const Lobby = () => {
                           <div class="text-sm font-semibold text-green-600">
                             {validWords.length}
                           </div>
+                          {contestedValidWords.length > 0 && (
+                            <div class="text-xs text-orange-600">
+                              -{contestedValidWords.length} contested
+                            </div>
+                          )}
                           {duplicateWords.length > 0 && (
                             <div class="text-xs text-red-600">
                               -{duplicateWords.length}
@@ -221,7 +256,11 @@ export const Lobby = () => {
           <div class="flex justify-center gap-4 mb-4 text-xs">
             <div class="flex items-center gap-1">
               <span class="inline-block w-2 h-2 bg-green-600 rounded"></span>
-              <span class="text-gray-700">Valid</span>
+              <span class="text-gray-700">Valid (click to contest)</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="inline-block w-2 h-2 bg-orange-600 rounded"></span>
+              <span class="text-gray-700">Contested (click to un-contest)</span>
             </div>
             <div class="flex items-center gap-1">
               <span class="inline-block w-2 h-2 bg-red-600 rounded"></span>

@@ -102,4 +102,15 @@ app.post("/api/play-word", async (c) => {
   return c.text("ok");
 });
 
+app.post("/api/contest-word", async (c) => {
+  const { token: userToken, playerName, word } = await c.req.json();
+
+  const result = room.toggleContestWord(userToken ?? "", playerName ?? "", word ?? "");
+
+  if (result === false) {
+    return c.text("bad", 400);
+  }
+  return c.text("ok");
+});
+
 export { app };

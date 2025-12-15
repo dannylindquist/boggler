@@ -20,6 +20,7 @@ export class ConnectionModal {
         foundWords: Record<string, string[]>;
       };
       persistentScores: Record<string, number>;
+      contestedWords: string[];
       wordList: Record<
         number,
         { word: string; path: string; common: boolean }[]
@@ -81,6 +82,20 @@ export class ConnectionModal {
       },
       body: JSON.stringify({
         token: this.uuid,
+      }),
+    }).catch(() => {});
+  }
+
+  contestWord(playerName: string, word: string) {
+    fetch(`${API_ROOT}/api/contest-word`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        token: this.uuid,
+        playerName,
+        word,
       }),
     }).catch(() => {});
   }

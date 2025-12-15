@@ -18,6 +18,11 @@ export class Room {
   } = { duplicateWords: [], foundWords: {} };
   // Persistent scores across games - tracks cumulative score for each player
   persistentScores: Record<string, number> = {};
+  // Contested words - words that have been contested and should not count for points
+  contestedWords: Set<string> = new Set();
+  // Base game scores - the original scores for the current finished game (before contesting)
+  // Used to track what was added to persistent scores, so we can adjust when words are contested
+  baseGameScores: Record<string, number> = {};
   wordList: Record<number, {
     word: string;
     path: string;
@@ -40,6 +45,8 @@ export class Room {
     this.gameDuration = 2;
     this.scores = { duplicateWords: [], foundWords: {} };
     this.wordList = {};
+    this.contestedWords.clear();
+    this.baseGameScores = {};
     // Keep persistent scores when resetting (only clear when all members leave)
   }
 
@@ -54,6 +61,8 @@ export class Room {
       this.board = [];
       this.scores = { duplicateWords: [], foundWords: {} };
       this.wordList = {};
+      this.contestedWords.clear();
+      this.baseGameScores = {};
       // Clear all player words for fresh start but keep persistent scores
       for (const member of this.members.values()) {
         member.words.clear();
@@ -101,6 +110,7 @@ export class Room {
       wordList: this.wordList,
       scores: this.scores,
       persistentScores: this.persistentScores,
+      contestedWords: Array.from(this.contestedWords),
       minWordLength: this.minWordLength,
       gameDuration: this.gameDuration,
     };
@@ -138,18 +148,89 @@ export class Room {
       foundWords: wordMap,
     };
 
-    // Update persistent scores - add this game's score to cumulative total
+    // Calculate base game scores (before any contesting)
+    // Store these so we can adjust persistent scores when words are contested
+    this.baseGameScores = {};
     for (const [name, words] of Object.entries(wordMap)) {
       const validWords = words.filter(word => !duplicatedWords.has(word));
       const gameScore = validWords.reduce((sum, word) => sum + Math.max(1, word.length - 2), 0);
-      
+      this.baseGameScores[name] = gameScore;
+    }
+
+    // Update persistent scores - add this game's base score to cumulative total
+    // If words are contested later, we'll adjust the persistent scores accordingly
+    for (const [name, baseScore] of Object.entries(this.baseGameScores)) {
       // Initialize persistent score if this is the player's first game
       if (!(name in this.persistentScores)) {
         this.persistentScores[name] = 0;
       }
       
-      // Add this game's score to the persistent total
-      this.persistentScores[name] += gameScore;
+      // Add this game's base score to the persistent total
+      this.persistentScores[name] += baseScore;
+    }
+    
+    // Clear contested words for the new game
+    this.contestedWords.clear();
+  }
+
+  calculateCurrentGameScore(playerName: string): number {
+    const words = this.scores.foundWords[playerName] || [];
+    const validWords = words.filter(
+      word => 
+        !this.scores.duplicateWords.includes(word) && 
+        !this.contestedWords.has(word)
+    );
+    return validWords.reduce((sum, word) => sum + Math.max(1, word.length - 2), 0);
+  }
+
+  toggleContestWord(userToken: string, playerName: string, word: string) {
+    // Only allow contesting when game is finished
+    if (this.state !== "finished") {
+      return false;
+    }
+
+    // Verify the user is a member
+    const members = [...this.members.values()];
+    const member = members.find((member) => member.uid === userToken);
+    if (!member) {
+      return false;
+    }
+
+    // Verify the word belongs to the specified player
+    const playerWords = this.scores.foundWords[playerName];
+    if (!playerWords || !playerWords.includes(word)) {
+      return false;
+    }
+
+    // Toggle contest status
+    if (this.contestedWords.has(word)) {
+      this.contestedWords.delete(word);
+    } else {
+      this.contestedWords.add(word);
+    }
+
+    // Recalculate persistent scores with contested words excluded
+    this.recalculatePersistentScores();
+    this.sendState();
+    return true;
+  }
+
+  recalculatePersistentScores() {
+    // Adjust persistent scores based on contested words
+    // The persistent score currently includes the base game score
+    // We need to calculate the difference and adjust
+    for (const [name, baseScore] of Object.entries(this.baseGameScores)) {
+      if (!(name in this.persistentScores)) {
+        this.persistentScores[name] = 0;
+      }
+      
+      // Calculate the current game's adjusted score (with contested words excluded)
+      const adjustedScore = this.calculateCurrentGameScore(name);
+      
+      // The difference between base and adjusted is what we need to subtract from persistent
+      // Since persistent already has baseScore, we subtract (baseScore - adjustedScore)
+      const adjustment = baseScore - adjustedScore;
+      this.persistentScores[name] = this.persistentScores[name] - adjustment;
     }
   }
 
@@ -170,6 +251,9 @@ export class Room {
       
       // Clear word lists and scores from previous game but keep persistent scores
       this.scores = { duplicateWords: [], foundWords: {} };
+      this.contestedWords.clear();
+      this.baseGameScores = {};
+      this.previousGameScores = {};
       for (const member of this.members.values()) {
         member.words.clear();
       }
