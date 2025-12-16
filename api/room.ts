@@ -23,6 +23,9 @@ export class Room {
   // Base game scores - the original scores for the current finished game (before contesting)
   // Used to track what was added to persistent scores, so we can adjust when words are contested
   baseGameScores: Record<string, number> = {};
+  // Current game's contribution to persistent scores (after contesting adjustments)
+  // This tracks what we've already added/subtracted so we can replace it correctly
+  currentGameContribution: Record<string, number> = {};
   wordList: Record<number, {
     word: string;
     path: string;
@@ -47,6 +50,7 @@ export class Room {
     this.wordList = {};
     this.contestedWords.clear();
     this.baseGameScores = {};
+    this.currentGameContribution = {};
     // Keep persistent scores when resetting (only clear when all members leave)
   }
 
@@ -63,6 +67,7 @@ export class Room {
       this.wordList = {};
       this.contestedWords.clear();
       this.baseGameScores = {};
+      this.currentGameContribution = {};
       // Clear all player words for fresh start but keep persistent scores
       for (const member of this.members.values()) {
         member.words.clear();
@@ -159,6 +164,7 @@ export class Room {
 
     // Update persistent scores - add this game's base score to cumulative total
     // If words are contested later, we'll adjust the persistent scores accordingly
+    this.currentGameContribution = {};
     for (const [name, baseScore] of Object.entries(this.baseGameScores)) {
       // Initialize persistent score if this is the player's first game
       if (!(name in this.persistentScores)) {
@@ -167,6 +173,8 @@ export class Room {
       
       // Add this game's base score to the persistent total
       this.persistentScores[name] += baseScore;
+      // Track what we added so we can adjust it later if words are contested
+      this.currentGameContribution[name] = baseScore;
     }
     
     // Clear contested words for the new game
@@ -217,8 +225,7 @@ export class Room {
 
   recalculatePersistentScores() {
     // Adjust persistent scores based on contested words
-    // The persistent score currently includes the base game score
-    // We need to calculate the difference and adjust
+    // We need to replace the current game's contribution with the adjusted score
     for (const [name, baseScore] of Object.entries(this.baseGameScores)) {
       if (!(name in this.persistentScores)) {
         this.persistentScores[name] = 0;
@@ -227,10 +234,14 @@ export class Room {
       // Calculate the current game's adjusted score (with contested words excluded)
       const adjustedScore = this.calculateCurrentGameScore(name);
       
-      // The difference between base and adjusted is what we need to subtract from persistent
-      // Since persistent already has baseScore, we subtract (baseScore - adjustedScore)
-      const adjustment = baseScore - adjustedScore;
-      this.persistentScores[name] = this.persistentScores[name] - adjustment;
+      // Get what we previously contributed from this game
+      const previousContribution = this.currentGameContribution[name] || 0;
+      
+      // Replace the previous contribution with the new adjusted contribution
+      this.persistentScores[name] = this.persistentScores[name] - previousContribution + adjustedScore;
+      
+      // Update the tracked contribution
+      this.currentGameContribution[name] = adjustedScore;
     }
   }
 
@@ -253,7 +264,7 @@ export class Room {
       this.scores = { duplicateWords: [], foundWords: {} };
       this.contestedWords.clear();
       this.baseGameScores = {};
-      this.previousGameScores = {};
+      this.currentGameContribution = {};
       for (const member of this.members.values()) {
         member.words.clear();
       }
