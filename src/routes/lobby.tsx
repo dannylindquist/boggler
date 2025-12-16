@@ -46,7 +46,7 @@ export const Lobby = () => {
                 <label class="block border rounded-md w-fit p-2 has-checked:bg-yellow-300 has-checked:text-gray-900 shadow-[2px_2px_0] shadow-gray-600">
                   <span>2 minutes</span>
                   <input
-                    checked
+                    defaultChecked
                     class="sr-only"
                     type="radio"
                     name="time"
@@ -65,6 +65,7 @@ export const Lobby = () => {
                 <label class="block border rounded-md w-fit p-2 has-checked:bg-yellow-300 has-checked:text-gray-900 shadow-[2px_2px_0] shadow-gray-600">
                   <span>3 Letters</span>
                   <input
+                    defaultChecked
                     class="sr-only"
                     type="radio"
                     name="word-length"
@@ -74,7 +75,6 @@ export const Lobby = () => {
                 <label class="block border rounded-md w-fit p-2 has-checked:bg-yellow-300 has-checked:text-gray-900 shadow-[2px_2px_0] shadow-gray-600">
                   <span>4 Letters</span>
                   <input
-                    checked
                     class="sr-only"
                     type="radio"
                     name="word-length"
