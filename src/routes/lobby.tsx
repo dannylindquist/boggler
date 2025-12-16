@@ -123,16 +123,11 @@ export const Lobby = () => {
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-300">
-                {Object.entries(connection?.state?.scores.foundWords || {})
-                  .sort(([nameA, wordsA], [nameB, wordsB]) => {
-                    // Sort by total persistent score (descending)
-                    const totalScoreA =
-                      connection?.state?.persistentScores?.[nameA] || 0;
-                    const totalScoreB =
-                      connection?.state?.persistentScores?.[nameB] || 0;
-                    return totalScoreB - totalScoreA;
-                  })
-                  .map(([name, words]) => {
+                {(() => {
+                  // Calculate game scores for all players first
+                  const playerScores = Object.entries(
+                    connection?.state?.scores.foundWords || {}
+                  ).map(([name, words]) => {
                     const contestedWords =
                       connection?.state?.contestedWords || [];
                     const validWords = words.filter(
@@ -141,113 +136,152 @@ export const Lobby = () => {
                           word
                         ) && !contestedWords.includes(word)
                     );
-                    const contestedValidWords = words.filter(
-                      (word: string) =>
-                        !connection?.state?.scores.duplicateWords.includes(
-                          word
-                        ) && contestedWords.includes(word)
-                    );
-                    const duplicateWords = words.filter((word: string) =>
-                      connection?.state?.scores.duplicateWords.includes(word)
-                    );
                     const totalScore = validWords.reduce(
                       (sum: number, word: string) =>
                         sum + Math.max(1, word.length - 2),
                       0
                     );
+                    return { name, words, totalScore };
+                  });
 
-                    return (
-                      <tr
-                        key={name}
-                        class="hover:bg-gray-750 transition-colors"
-                      >
-                        <td class="px-3 py-2">
-                          <div class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            {name}
-                          </div>
-                        </td>
-                        <td class="px-3 py-2 text-center">
-                          <div class="space-y-1">
-                            {validWords.length > 0 && (
-                              <div class="flex flex-wrap justify-center gap-1">
-                                {validWords.map((word: string) => (
-                                  <button
-                                    key={word}
-                                    onClick={() =>
-                                      connection?.contestWord(name, word)
-                                    }
-                                    class="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition-colors"
-                                    title="Click to contest this word"
-                                  >
-                                    {word}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                  // Find the maximum game score
+                  const maxGameScore = Math.max(
+                    ...playerScores.map((p) => p.totalScore),
+                    0
+                  );
+
+                  // Sort by total persistent score (descending)
+                  return playerScores
+                    .sort((a, b) => {
+                      const totalScoreA =
+                        connection?.state?.persistentScores?.[a.name] || 0;
+                      const totalScoreB =
+                        connection?.state?.persistentScores?.[b.name] || 0;
+                      return totalScoreB - totalScoreA;
+                    })
+                    .map(({ name, words, totalScore }) => {
+                      const contestedWords =
+                        connection?.state?.contestedWords || [];
+                      const validWords = words.filter(
+                        (word: string) =>
+                          !connection?.state?.scores.duplicateWords.includes(
+                            word
+                          ) && !contestedWords.includes(word)
+                      );
+                      const contestedValidWords = words.filter(
+                        (word: string) =>
+                          !connection?.state?.scores.duplicateWords.includes(
+                            word
+                          ) && contestedWords.includes(word)
+                      );
+                      const duplicateWords = words.filter((word: string) =>
+                        connection?.state?.scores.duplicateWords.includes(word)
+                      );
+                      const isWinner =
+                        totalScore === maxGameScore && maxGameScore > 0;
+
+                      return (
+                        <tr
+                          key={name}
+                          class="hover:bg-gray-750 transition-colors"
+                        >
+                          <td class="px-3 py-2">
+                            <div class="text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-1">
+                              {name}
+                              {isWinner && (
+                                <svg
+                                  class="w-4 h-4 text-yellow-500 fill-yellow-500"
+                                  viewBox="0 0 20 20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              )}
+                            </div>
+                          </td>
+                          <td class="px-3 py-2 text-center">
+                            <div class="space-y-1">
+                              {validWords.length > 0 && (
+                                <div class="flex flex-wrap justify-center gap-1">
+                                  {validWords.map((word: string) => (
+                                    <button
+                                      key={word}
+                                      onClick={() =>
+                                        connection?.contestWord(name, word)
+                                      }
+                                      class="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition-colors"
+                                      title="Click to contest this word"
+                                    >
+                                      {word}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {contestedValidWords.length > 0 && (
+                                <div class="flex flex-wrap justify-center gap-1">
+                                  {contestedValidWords.map((word: string) => (
+                                    <button
+                                      key={word}
+                                      onClick={() =>
+                                        connection?.contestWord(name, word)
+                                      }
+                                      class="inline-block px-1.5 py-0.5 text-xs font-medium bg-orange-600 text-white rounded line-through opacity-75 hover:bg-orange-700 cursor-pointer transition-colors"
+                                      title="Contested - click to un-contest"
+                                    >
+                                      {word}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {duplicateWords.length > 0 && (
+                                <div class="flex flex-wrap justify-center gap-1">
+                                  {duplicateWords.map((word: string) => (
+                                    <span
+                                      key={word}
+                                      class="inline-block px-1.5 py-0.5 text-xs font-medium bg-red-600 text-white rounded line-through opacity-75"
+                                      title="Duplicate word - no points"
+                                    >
+                                      {word}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {words.length === 0 && (
+                                <span class="text-gray-700 text-xs">
+                                  No words
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td class="px-3 py-2 text-center">
+                            <div class="text-sm font-semibold text-green-600">
+                              {validWords.length}
+                            </div>
                             {contestedValidWords.length > 0 && (
-                              <div class="flex flex-wrap justify-center gap-1">
-                                {contestedValidWords.map((word: string) => (
-                                  <button
-                                    key={word}
-                                    onClick={() =>
-                                      connection?.contestWord(name, word)
-                                    }
-                                    class="inline-block px-1.5 py-0.5 text-xs font-medium bg-orange-600 text-white rounded line-through opacity-75 hover:bg-orange-700 cursor-pointer transition-colors"
-                                    title="Contested - click to un-contest"
-                                  >
-                                    {word}
-                                  </button>
-                                ))}
+                              <div class="text-xs text-orange-600">
+                                -{contestedValidWords.length} contested
                               </div>
                             )}
                             {duplicateWords.length > 0 && (
-                              <div class="flex flex-wrap justify-center gap-1">
-                                {duplicateWords.map((word: string) => (
-                                  <span
-                                    key={word}
-                                    class="inline-block px-1.5 py-0.5 text-xs font-medium bg-red-600 text-white rounded line-through opacity-75"
-                                    title="Duplicate word - no points"
-                                  >
-                                    {word}
-                                  </span>
-                                ))}
+                              <div class="text-xs text-red-600">
+                                -{duplicateWords.length}
                               </div>
                             )}
-                            {words.length === 0 && (
-                              <span class="text-gray-700 text-xs">
-                                No words
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td class="px-3 py-2 text-center">
-                          <div class="text-sm font-semibold text-green-600">
-                            {validWords.length}
-                          </div>
-                          {contestedValidWords.length > 0 && (
-                            <div class="text-xs text-orange-600">
-                              -{contestedValidWords.length} contested
-                            </div>
-                          )}
-                          {duplicateWords.length > 0 && (
-                            <div class="text-xs text-red-600">
-                              -{duplicateWords.length}
-                            </div>
-                          )}
-                        </td>
-                        <td class="px-3 py-2 text-right">
-                          <span class="text-lg font-bold text-green-600">
-                            {totalScore}
-                          </span>
-                        </td>
-                        <td class="px-3 py-2 text-right">
-                          <span class="text-xl font-bold text-yellow-600">
-                            {connection?.state?.persistentScores?.[name] || 0}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                          <td class="px-3 py-2 text-right">
+                            <span class="text-lg font-bold text-green-600">
+                              {totalScore}
+                            </span>
+                          </td>
+                          <td class="px-3 py-2 text-right">
+                            <span class="text-xl font-bold text-yellow-600">
+                              {connection?.state?.persistentScores?.[name] || 0}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    });
+                })()}
               </tbody>
             </table>
           </div>
