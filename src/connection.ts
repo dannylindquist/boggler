@@ -1,13 +1,17 @@
-import { signal } from "@preact/signals";
-import { createContext } from "preact";
+import { TypedEventTarget } from "@remix-run/interaction";
 import { showToast } from "./toast.tsx";
 
 const API_ROOT =  "";
 
-export class ConnectionModal {
-  uuid = signal("");
-  _state = signal<
-    | {
+type ConnectionModelEvents = {
+  stateChange: Event;
+  connectionChange: Event;
+}
+
+export class ConnectionModal extends TypedEventTarget<ConnectionModelEvents> {
+  uuid = '';
+  state:
+     {
       board: string[];
       state: string;
       players: string[];
@@ -27,15 +31,14 @@ export class ConnectionModal {
       >;
     }
     | undefined
-  >(undefined);
-  isConnected = signal(false);
+  = undefined;
+  isConnected = false;
   es: EventSource | undefined = undefined;
   abortController: AbortController | undefined = undefined;
-  constructor() {}
-
-  get state() {
-    return this._state.value;
+  constructor() {
+    super();
   }
+
 
   start(options: { time: number; wordLength: number }) {
     fetch(`${API_ROOT}/api/start`, {
@@ -101,7 +104,7 @@ export class ConnectionModal {
   }
 
   isWordValid(attemptedWord: string) {
-    const words = this._state.peek()?.wordList;
+    const words = this.state?.wordList;
     if (!words) {
       return false;
     }
@@ -113,8 +116,8 @@ export class ConnectionModal {
   }
 
   async playWord(word: number[]) {
-    const words = this._state.peek()?.wordList;
-    const state = this._state.peek();
+    const words = this.state?.wordList;
+    const state = this.state;
     if (!words || !state) {
       return;
     }
@@ -175,24 +178,27 @@ export class ConnectionModal {
       );
       this.es.addEventListener("open", () => {
         console.log("connection opened");
-        this.isConnected.value = true;
+        this.isConnected = true;
+        this.dispatchEvent(new Event("connectionChange"));
         res(true);
       }, { signal });
 
       this.es.addEventListener("error", () => {
         console.log("connection error");
-        this.isConnected.value = false;
+        this.isConnected = false;
+        this.dispatchEvent(new Event("connectionChange"));
         res(false);
       }, { signal });
 
       this.es.addEventListener("connected", (event) => {
-        this.uuid.value = event.data;
+        this.uuid = event.data;
       }, { signal });
 
       this.es.addEventListener("state", (event) => {
-        this._state.value = JSON.parse(event.data);
+        this.state = JSON.parse(event.data);
         // @ts-ignore debugging purposes only
-        globalThis.gameState = this._state;
+        globalThis.gameState = this.state;
+        this.dispatchEvent(new Event("stateChange"));
       }, { signal });
     });
   }
@@ -201,10 +207,4 @@ export class ConnectionModal {
     this.es?.close();
     this.abortController?.abort();
   }
-
-  get connected() {
-    return this.isConnected.value;
-  }
 }
-
-export const ConnectionContext = createContext<ConnectionModal | null>(null);

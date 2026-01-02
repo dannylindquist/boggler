@@ -1,20 +1,44 @@
-import { useContext } from "preact/hooks";
-import { ConnectionContext } from "../connection.ts";
-import { useTime } from "../useTime.tsx";
+import { ConnectionProvider } from "@/ConnectionProvider.tsx";
+import { Handle } from "@remix-run/component";
 
-export const StartTimer = () => {
-  const connection = useContext(ConnectionContext);
-  const timeBeforeState = useTime(connection?.state?.startTime ?? 0);
-  return (
+export function StartTimer(this: Handle) {
+  const connection = this.context.get(ConnectionProvider);
+  let timeRemaining = Math.ceil(
+    ((connection?.state?.startTime ?? 0) - Date.now()) / 1000
+  );
+
+  let interval = setInterval(() => {
+    timeRemaining = Math.ceil(
+      ((connection?.state?.startTime ?? 0) - Date.now()) / 1000
+    );
+    if (timeRemaining <= 0) {
+      clearInterval(interval);
+    }
+    this.update();
+  }, 100);
+
+  return () => (
     <div class="flex items-center justify-center">
-      <div class="text-5xl font-bold text-center h-1/2">{timeBeforeState}</div>
+      <div class="text-5xl font-bold text-center h-1/2">{timeRemaining}</div>
     </div>
   );
-};
+}
 
-export const GameTimer = () => {
-  const connection = useContext(ConnectionContext);
-  const timeRemaining = useTime(connection?.state?.endTime ?? 0);
+export function GameTimer(this: Handle) {
+  const connection = this.context.get(ConnectionProvider);
+  let timeRemaining = Math.ceil(
+    ((connection?.state?.endTime ?? 0) - Date.now()) / 1000
+  );
+
+  let interval = setInterval(() => {
+    timeRemaining = Math.ceil(
+      ((connection?.state?.endTime ?? 0) - Date.now()) / 1000
+    );
+    if (timeRemaining <= 0) {
+      clearInterval(interval);
+    }
+    this.update();
+  }, 100);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -26,28 +50,30 @@ export const GameTimer = () => {
       .padStart(2, "0")}`;
   };
 
-  // Don't show timer if game hasn't started or is over
-  if (!connection?.state?.endTime || connection?.state?.state !== "started") {
-    return null;
-  }
+  const isLowTime = timeRemaining <= 30;
+  const isVeryLowTime = timeRemaining <= 10;
 
-  const isLowTime = timeRemaining.value <= 30;
-  const isVeryLowTime = timeRemaining.value <= 10;
+  return () => {
+    // Don't show timer if game hasn't started or is over
+    if (!connection?.state?.endTime || connection?.state?.state !== "started") {
+      return null;
+    }
 
-  return (
-    <div class="w-fit mx-auto text-center mt-4 p-3 rounded-lg bg-white shadow-[4px_4px_0] shadow-gray-600">
-      <p class="text-sm text-gray-700 mb-1">Time Remaining</p>
-      <p
-        class={`text-2xl font-bold ${
-          isVeryLowTime
-            ? "text-red-400 animate-pulse"
-            : isLowTime
-            ? "text-yellow-400"
-            : "text-green-600"
-        }`}
-      >
-        {formatTime(timeRemaining.value)}
-      </p>
-    </div>
-  );
-};
+    return (
+      <div class="w-fit mx-auto text-center mt-4 p-3 rounded-lg bg-white shadow-[4px_4px_0] shadow-gray-600">
+        <p class="text-sm text-gray-700 mb-1">Time Remaining</p>
+        <p
+          class={`text-2xl font-bold ${
+            isVeryLowTime
+              ? "text-red-400 animate-pulse"
+              : isLowTime
+              ? "text-yellow-400"
+              : "text-green-600"
+          }`}
+        >
+          {formatTime(timeRemaining)}
+        </p>
+      </div>
+    );
+  };
+}
