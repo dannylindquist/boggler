@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch api/main.ts",
+    "dev": "NODE_ENV=development bun run --watch api/main.ts",
     "build": "bun run type-check",
     "serve": "bun run api/main.ts",
     "type-check": "bunx tsc --noEmit",

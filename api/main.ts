@@ -5,7 +5,10 @@ const port = process.env.PORT;
 const server = Bun.serve({
   idleTimeout: 0,
   port: port ? parseInt(port) : 8000,
-  development: true,
+  ...( process.env.NODE_ENV === "development" ? {
+    development: true,
+    console: true,
+  } : {}),
   routes: {
     "/api/*": app.fetch,
     "/*": frontend,
