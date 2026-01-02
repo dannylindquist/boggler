@@ -1,5 +1,5 @@
-import { render } from "preact";
-import "./index.css";
+import { createRoot } from "@remix-run/component";
 import { App } from "./app.tsx";
+import "./index.css";
 
-render(<App />, document.getElementById("app")!);
+createRoot(document.getElementById("app")!).render(<App />);

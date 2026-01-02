@@ -23,7 +23,7 @@
     "noImplicitOverride": true,
     "verbatimModuleSyntax": false,
     "jsx": "react-jsx",
-    "jsxImportSource": "preact",
+    "jsxImportSource": "@remix-run/component",
     "types": ["bun-types", "node"],
     "paths": {
       "@/*": ["./src/*"],

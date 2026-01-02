@@ -1,6 +1,4 @@
-import { useSignal } from "@preact/signals";
-import { useCallback, useContext } from "preact/hooks";
-import { ConnectionContext } from "./connection.ts";
+import { TypedEventTarget } from "@remix-run/interaction";
 
 function isWithinThreshold(
   el: HTMLElement,
@@ -73,33 +71,38 @@ const getClosestCell = (event: TouchEvent): HTMLElement | null => {
   return cell as HTMLElement;
 };
 
-export const useSelection = () => {
-  const connection = useContext(ConnectionContext);
-  const touchedCells = useSignal<number[]>([]);
-  const handleTouchEnd = useCallback(async () => {
-    const minLength = connection?.state?.minWordLength ?? 3;
-    if (touchedCells.value.length < minLength) {
-      touchedCells.value = [];
-      return;
-    }
-    await connection?.playWord(touchedCells.value);
-    touchedCells.value = [];
-  }, []);
+export class WordSelecteldEvent extends Event {
+  selection: number[];
+  constructor(selection: number[]) {
+    super("wordSelected");
+    this.selection = selection;
+  }
+}
 
-  const handleTouchStart = useCallback((event: TouchEvent) => {
-    // we will handle touches
+export class SelectionController extends TypedEventTarget<{ change: Event, wordSelected: WordSelecteldEvent }> {
+  touchedCells: number[] = [];
+
+  handleTouchEnd(event: TouchEvent) {
+    if(this.touchedCells.length > 2) {
+      this.dispatchEvent(new WordSelecteldEvent(this.touchedCells));
+    }
+    this.dispatchEvent(new Event("change"));
+    this.touchedCells = [];
+  }
+
+  handleTouchStart(event: TouchEvent) {
     event.preventDefault();
     const cell = getClosestCell(event);
     if (cell instanceof HTMLElement) {
       const cellIndex = cell.dataset!.index;
-      const touchedItems = touchedCells.peek();
-      if (typeof cellIndex === "string" && !touchedItems.includes(+cellIndex)) {
-        touchedCells.value = [...touchedItems, +cellIndex];
+      if (typeof cellIndex === "string") {
+        this.touchedCells.push(+cellIndex);
+        this.dispatchEvent(new Event("change"));
       }
     }
-  }, []);
+  }
 
-  const handleTouchMove = useCallback((event: TouchEvent) => {
+  handleTouchMove(event: TouchEvent) {
     // we will handle touches
     event.preventDefault();
     const cell = getClosestCell(event);
@@ -112,30 +115,24 @@ export const useSelection = () => {
       const cellIndex = cell.dataset!.index ? +cell.dataset!.index : -1;
       if (
         enteredEnoughThreshold &&
-        isSelectable(cellIndex, touchedCells.peek())
+        isSelectable(cellIndex, this.touchedCells)
       ) {
-        const touchedItems = touchedCells.peek();
+        const touchedItems = this.touchedCells;
         // add the new cell selection if it's not selected
         if (
           cellIndex >= 0 && !touchedItems.includes(+cellIndex)
         ) {
-          touchedCells.value = [...touchedCells.peek(), +cellIndex];
+          this.touchedCells = [...this.touchedCells, +cellIndex];
+          this.dispatchEvent(new Event("change"));
           return;
         }
         // if you've gone backwards we can deselect to allow picking a different letter.
         if (touchedItems[touchedItems.length - 2] === cellIndex) {
-          touchedCells.value = touchedItems.slice(0, touchedItems.length - 1);
+          this.touchedCells = touchedItems.slice(0, touchedItems.length - 1);
+          this.dispatchEvent(new Event("change"));
         }
       }
     }
-  }, []);
+  }
+}
 
-  return {
-    selection: touchedCells,
-    events: {
-      onTouchStart: handleTouchStart,
-      onTouchMove: handleTouchMove,
-      onTouchEnd: handleTouchEnd,
-    },
-  };
-};

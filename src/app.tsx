@@ -1,28 +1,36 @@
-import { useMemo } from "preact/hooks";
-import { ConnectionContext, ConnectionModal } from "./connection.ts";
+import { Handle } from "@remix-run/component";
+import { ConnectionModal } from "./connection.ts";
+import { ConnectionProvider } from "./ConnectionProvider.tsx";
 import { Home } from "./routes/home.tsx";
 import { Lobby } from "./routes/lobby.tsx";
 import { TestPage } from "./routes/test.tsx";
 import { ToastContainer } from "./toast.tsx";
 
-export function App() {
-  const connection = useMemo(() => new ConnectionModal(), []);
+export function App(this: Handle) {
+  const connection = new ConnectionModal();
 
-  // Simple routing based on URL hash
-  const currentRoute = window.location.hash.slice(1) || "";
+  this.on(connection, {
+    connectionChange: () => this.update(),
+  });
 
-  // Test route for component showcase
-  if (currentRoute === "test") {
-    return <TestPage />;
-  }
+  return () => {
+    // Simple routing based on URL hash
+    const currentRoute = window.location.hash.slice(1) || "";
 
-  return (
-    <ConnectionContext.Provider value={connection}>
-      <h1 class="text-4xl text-center py-4 font-black tracking-tight">
-        Boggle
-      </h1>
-      <main class="mt-8">{!connection.connected ? <Home /> : <Lobby />}</main>
-      <ToastContainer />
-    </ConnectionContext.Provider>
-  );
+    // Test route for component showcase
+    if (currentRoute === "test") {
+      return <TestPage />;
+    }
+    return (
+      <ConnectionProvider connection={connection}>
+        <h1 class="text-4xl text-center py-4 font-black tracking-tight">
+          Boggle
+        </h1>
+        <main class="mt-8">
+          {!connection.isConnected ? <Home /> : <Lobby />}
+        </main>
+        <ToastContainer />
+      </ConnectionProvider>
+    );
+  };
 }

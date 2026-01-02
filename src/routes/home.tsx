@@ -1,8 +1,8 @@
-import { useContext } from "preact/hooks";
-import { ConnectionContext } from "../connection.ts";
+import { ConnectionProvider } from "@/ConnectionProvider.tsx";
+import { Handle } from "@remix-run/component";
 
-export const Home = () => {
-  const connection = useContext(ConnectionContext);
+export function Home(this: Handle) {
+  const connection = this.context.get(ConnectionProvider);
   async function onSubmit(e: SubmitEvent) {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -16,7 +16,9 @@ export const Home = () => {
       class="mx-auto max-w-md px-4"
       method="post"
       action="/api/join"
-      onSubmit={onSubmit}
+      on={{
+        submit: onSubmit,
+      }}
     >
       <div class="bg-white text-gray-900 rounded shadow-[4px_4px_0] shadow-gray-600">
         <h1 class="py-3 border-b border-gray-500 px-4">Join the lobby</h1>
@@ -38,4 +40,4 @@ export const Home = () => {
       />
     </form>
   );
-};
+}

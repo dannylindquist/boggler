@@ -1,27 +1,50 @@
-import { signal } from "@preact/signals";
-import { ConnectionContext } from "../connection.ts";
+import { ConnectionProvider } from "@/ConnectionProvider.tsx";
+import { Handle, RemixNode } from "@remix-run/component";
+import { TypedEventTarget } from "@remix-run/interaction";
 import { ToastContainer, showToast } from "../toast.tsx";
 import { Board } from "./board.tsx";
 import { Home } from "./home.tsx";
 import { Lobby } from "./lobby.tsx";
 import { GameTimer, StartTimer } from "./timer.tsx";
 
+type MockConnectionEvents = {
+  stateChange: Event;
+  connectionChange: Event;
+};
+
 // Mock connection class for testing
-class MockConnection {
-  uuid = signal("test-uuid");
-  _state = signal<any>(undefined);
-  isConnected = signal(true);
+class MockConnection extends TypedEventTarget<MockConnectionEvents> {
+  uuid = "test-uuid";
+  state:
+    | {
+        board: string[];
+        state: string;
+        players: string[];
+        startTime: number;
+        endTime: number;
+        minWordLength: number;
+        gameDuration: number;
+        scores: {
+          duplicateWords: string[];
+          foundWords: Record<string, string[]>;
+        };
+        persistentScores: Record<string, number>;
+        contestedWords: string[];
+        wordList: Record<
+          number,
+          { word: string; path: string; common: boolean }[]
+        >;
+      }
+    | undefined = undefined;
+  isConnected = true;
 
   constructor(initialState?: any) {
-    this._state.value = initialState;
-  }
-
-  get state() {
-    return this._state.value;
+    super();
+    this.state = initialState;
   }
 
   get connected() {
-    return this.isConnected.value;
+    return this.isConnected;
   }
 
   // Mock methods
@@ -36,6 +59,12 @@ class MockConnection {
   }
   configureGame() {
     console.log("Mock configure game");
+  }
+  resetScores() {
+    console.log("Mock reset scores");
+  }
+  contestWord(playerName: string, word: string) {
+    console.log("Mock contest word:", playerName, word);
   }
   isWordValid(word: string) {
     return true;
@@ -105,6 +134,7 @@ const createMockConnection = (state: string, additionalProps = {}) => {
     gameDuration: 2,
     scores: mockScores,
     persistentScores: mockPersistentScores,
+    contestedWords: [],
     wordList: mockWordList,
     ...additionalProps,
   };
@@ -113,23 +143,19 @@ const createMockConnection = (state: string, additionalProps = {}) => {
 };
 
 // Component wrapper for visual separation
-const ComponentShowcase = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: any;
-}) => (
-  <div class="mb-12">
-    <h2 class="text-2xl font-bold mb-4 text-gray-800 pb-2">{title}</h2>
-    <div class="">{children}</div>
-  </div>
-);
+function ComponentShowcase(this: Handle, { title }: { title: string }) {
+  return ({ children }: { children: RemixNode }) => (
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold mb-4 text-gray-800 pb-2">{title}</h2>
+      <div class="">{children}</div>
+    </div>
+  );
+}
 
-export const TestPage = () => {
+export function TestPage(this: Handle) {
   // Mock connections for different states
   const homeConnection = new MockConnection();
-  homeConnection.isConnected.value = false;
+  homeConnection.isConnected = false;
 
   const pendingConnection = createMockConnection("pending");
   const startingConnection = createMockConnection("starting", {
@@ -145,7 +171,11 @@ export const TestPage = () => {
         <a
           href="#"
           class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-          onClick={() => (window.location.hash = "")}
+          on={{
+            click: () => {
+              window.location.hash = "";
+            },
+          }}
         >
           ← Back to Game
         </a>
@@ -160,56 +190,56 @@ export const TestPage = () => {
 
       {/* Home Component */}
       <ComponentShowcase title="Home Component (Not Connected)">
-        <ConnectionContext.Provider value={homeConnection}>
+        <ConnectionProvider connection={homeConnection as any}>
           <Home />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Lobby - Pending State */}
       <ComponentShowcase title="Lobby Component - Pending State">
-        <ConnectionContext.Provider value={pendingConnection}>
+        <ConnectionProvider connection={pendingConnection as any}>
           <Lobby />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Lobby - Starting State with Timer */}
       <ComponentShowcase title="Lobby Component - Starting State (with StartTimer)">
-        <ConnectionContext.Provider value={startingConnection}>
+        <ConnectionProvider connection={startingConnection as any}>
           <Lobby />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Standalone StartTimer */}
       <ComponentShowcase title="StartTimer Component (Standalone)">
-        <ConnectionContext.Provider value={startingConnection}>
+        <ConnectionProvider connection={startingConnection as any}>
           <StartTimer />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Board Component */}
       <ComponentShowcase title="Board Component - Active Game">
-        <ConnectionContext.Provider value={startedConnection}>
+        <ConnectionProvider connection={startedConnection as any}>
           <Board />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Standalone GameTimer */}
       <ComponentShowcase title="GameTimer Component (Standalone)">
-        <ConnectionContext.Provider value={startedConnection}>
+        <ConnectionProvider connection={startedConnection as any}>
           <GameTimer />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Lobby - Finished State */}
       <ComponentShowcase title="Lobby Component - Finished State (Scores)">
-        <ConnectionContext.Provider value={finishedConnection}>
+        <ConnectionProvider connection={finishedConnection as any}>
           <Lobby />
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Additional Visual States */}
       <ComponentShowcase title="Board with Different Selection States">
-        <ConnectionContext.Provider value={startedConnection}>
+        <ConnectionProvider connection={startedConnection as any}>
           <div class="space-y-4">
             <p class="text-sm text-gray-600">
               Note: Selection states require interaction - this shows the base
@@ -217,7 +247,7 @@ export const TestPage = () => {
             </p>
             <Board />
           </div>
-        </ConnectionContext.Provider>
+        </ConnectionProvider>
       </ComponentShowcase>
 
       {/* Timer Variations */}
@@ -225,35 +255,41 @@ export const TestPage = () => {
         <div class="space-y-4">
           <div>
             <h3 class="font-semibold mb-2">Normal Time (Green)</h3>
-            <ConnectionContext.Provider
-              value={createMockConnection("started", {
-                endTime: Date.now() + 90000, // 1.5 minutes remaining
-              })}
+            <ConnectionProvider
+              connection={
+                createMockConnection("started", {
+                  endTime: Date.now() + 90000, // 1.5 minutes remaining
+                }) as any
+              }
             >
               <GameTimer />
-            </ConnectionContext.Provider>
+            </ConnectionProvider>
           </div>
 
           <div>
             <h3 class="font-semibold mb-2">Low Time (Yellow)</h3>
-            <ConnectionContext.Provider
-              value={createMockConnection("started", {
-                endTime: Date.now() + 25000, // 25 seconds remaining
-              })}
+            <ConnectionProvider
+              connection={
+                createMockConnection("started", {
+                  endTime: Date.now() + 25000, // 25 seconds remaining
+                }) as any
+              }
             >
               <GameTimer />
-            </ConnectionContext.Provider>
+            </ConnectionProvider>
           </div>
 
           <div>
             <h3 class="font-semibold mb-2">Very Low Time (Red, Pulsing)</h3>
-            <ConnectionContext.Provider
-              value={createMockConnection("started", {
-                endTime: Date.now() + 8000, // 8 seconds remaining
-              })}
+            <ConnectionProvider
+              connection={
+                createMockConnection("started", {
+                  endTime: Date.now() + 8000, // 8 seconds remaining
+                }) as any
+              }
             >
               <GameTimer />
-            </ConnectionContext.Provider>
+            </ConnectionProvider>
           </div>
         </div>
       </ComponentShowcase>
@@ -263,33 +299,37 @@ export const TestPage = () => {
         <div class="space-y-4">
           <div>
             <h3 class="font-semibold mb-2">Single Player</h3>
-            <ConnectionContext.Provider
-              value={createMockConnection("pending", {
-                players: ["Solo Player"],
-                persistentScores: { "Solo Player": 25 },
-              })}
+            <ConnectionProvider
+              connection={
+                createMockConnection("pending", {
+                  players: ["Solo Player"],
+                  persistentScores: { "Solo Player": 25 },
+                }) as any
+              }
             >
               <Lobby />
-            </ConnectionContext.Provider>
+            </ConnectionProvider>
           </div>
 
           <div>
             <h3 class="font-semibold mb-2">Many Players</h3>
-            <ConnectionContext.Provider
-              value={createMockConnection("pending", {
-                players: ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank"],
-                persistentScores: {
-                  Alice: 45,
-                  Bob: 32,
-                  Charlie: 28,
-                  Diana: 51,
-                  Eve: 19,
-                  Frank: 37,
-                },
-              })}
+            <ConnectionProvider
+              connection={
+                createMockConnection("pending", {
+                  players: ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank"],
+                  persistentScores: {
+                    Alice: 45,
+                    Bob: 32,
+                    Charlie: 28,
+                    Diana: 51,
+                    Eve: 19,
+                    Frank: 37,
+                  },
+                }) as any
+              }
             >
               <Lobby />
-            </ConnectionContext.Provider>
+            </ConnectionProvider>
           </div>
         </div>
       </ComponentShowcase>
@@ -303,27 +343,34 @@ export const TestPage = () => {
           <div class="flex gap-2 flex-wrap">
             <button
               class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              onClick={() => showToast("WORD - Good word!", "success")}
+              on={{
+                click: () => showToast("WORD - Good word!", "success"),
+              }}
             >
               Success Toast
             </button>
             <button
               class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              onClick={() => showToast("INVALID - Not a valid word!", "error")}
+              on={{
+                click: () => showToast("INVALID - Not a valid word!", "error"),
+              }}
             >
               Error Toast
             </button>
             <button
               class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-              onClick={() =>
-                showToast("Word too short! Minimum 4 letters.", "error")
-              }
+              on={{
+                click: () =>
+                  showToast("Word too short! Minimum 4 letters.", "error"),
+              }}
             >
               Length Error
             </button>
             <button
               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={() => showToast("DUPLICATE - Already found!", "error")}
+              on={{
+                click: () => showToast("DUPLICATE - Already found!", "error"),
+              }}
             >
               Duplicate Error
             </button>
@@ -335,4 +382,4 @@ export const TestPage = () => {
       <ToastContainer />
     </div>
   );
-};
+}

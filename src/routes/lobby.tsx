@@ -1,25 +1,31 @@
-import { useContext, useState } from "preact/hooks";
-import { ConnectionContext } from "../connection.ts";
+import { ConnectionProvider } from "@/ConnectionProvider.tsx";
+import { Handle } from "@remix-run/component";
 import { Board } from "./board.tsx";
 import { StartTimer } from "./timer.tsx";
 
-export const Lobby = () => {
-  const connection = useContext(ConnectionContext);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  return (
+export function Lobby(this: Handle) {
+  const connection = this.context.get(ConnectionProvider);
+  let showResetConfirm = false;
+  this.on(connection, {
+    stateChange: () => this.update(),
+    connectionChange: () => this.update(),
+  });
+  return () => (
     <div>
       {connection?.state?.state === "pending" && (
         <form
           class="mx-auto max-w-md px-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const data = new FormData(e.target as HTMLFormElement);
-            const rawOptions = Object.fromEntries(data.entries());
-            const options = {
-              time: parseInt(rawOptions.time as string),
-              wordLength: parseInt(rawOptions["word-length"] as string),
-            };
-            connection.start(options);
+          on={{
+            submit: (e) => {
+              e.preventDefault();
+              const data = new FormData(e.target as HTMLFormElement);
+              const rawOptions = Object.fromEntries(data.entries());
+              const options = {
+                time: parseInt(rawOptions.time as string),
+                wordLength: parseInt(rawOptions["word-length"] as string),
+              };
+              connection.start(options);
+            },
           }}
         >
           <div class="bg-white shadow-[4px_4px_0] shadow-gray-600 border-2 border-gray-100 rounded-md py-6 px-4 mb-4">
@@ -206,9 +212,10 @@ export const Lobby = () => {
                                   {validWords.map((word: string) => (
                                     <button
                                       key={word}
-                                      onClick={() =>
-                                        connection?.contestWord(name, word)
-                                      }
+                                      on={{
+                                        click: () =>
+                                          connection?.contestWord(name, word),
+                                      }}
                                       class="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition-colors"
                                       title="Click to contest this word"
                                     >
@@ -222,9 +229,10 @@ export const Lobby = () => {
                                   {contestedValidWords.map((word: string) => (
                                     <button
                                       key={word}
-                                      onClick={() =>
-                                        connection?.contestWord(name, word)
-                                      }
+                                      on={{
+                                        click: () =>
+                                          connection?.contestWord(name, word),
+                                      }}
                                       class="inline-block px-1.5 py-0.5 text-xs font-medium bg-orange-600 text-white rounded line-through opacity-75 hover:bg-orange-700 cursor-pointer transition-colors"
                                       title="Contested - click to un-contest"
                                     >
@@ -306,7 +314,9 @@ export const Lobby = () => {
             <button
               type="button"
               class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold bg-white shadow-[4px_4px_0] shadow-gray-600 text-sm w-full md:w-auto"
-              onClick={() => connection?.playAgain()}
+              on={{
+                click: () => connection?.playAgain(),
+              }}
             >
               <svg
                 data-slot="icon"
@@ -329,7 +339,9 @@ export const Lobby = () => {
             <button
               type="button"
               class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold bg-white shadow-[4px_4px_0] shadow-gray-600 text-sm w-full md:w-auto"
-              onClick={() => connection?.configureGame()}
+              on={{
+                click: () => connection?.configureGame(),
+              }}
             >
               <svg
                 data-slot="icon"
@@ -352,7 +364,12 @@ export const Lobby = () => {
             <button
               type="button"
               class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold bg-white shadow-[4px_4px_0] shadow-gray-600 text-sm text-red-600 w-full md:w-auto"
-              onClick={() => setShowResetConfirm(true)}
+              on={{
+                click: () => {
+                  showResetConfirm = true;
+                  this.update();
+                },
+              }}
             >
               <svg
                 data-slot="icon"
@@ -378,11 +395,18 @@ export const Lobby = () => {
           {showResetConfirm && (
             <div
               class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50"
-              onClick={() => setShowResetConfirm(false)}
+              on={{
+                click: () => {
+                  showResetConfirm = false;
+                  this.update();
+                },
+              }}
             >
               <div
                 class="bg-white rounded-lg shadow-[4px_4px_0] shadow-gray-600 border-2 border-gray-800 p-6 max-w-md mx-4"
-                onClick={(e) => e.stopPropagation()}
+                on={{
+                  click: (e) => e.stopPropagation(),
+                }}
               >
                 <h3 class="text-lg font-bold text-gray-800 mb-4">
                   Reset Scores?
@@ -395,16 +419,24 @@ export const Lobby = () => {
                   <button
                     type="button"
                     class="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-800 shadow-[2px_2px_0] shadow-gray-600 hover:bg-gray-300"
-                    onClick={() => setShowResetConfirm(false)}
+                    on={{
+                      click: () => {
+                        showResetConfirm = false;
+                        this.update();
+                      },
+                    }}
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     class="px-4 py-2 rounded-lg font-semibold bg-red-600 text-white shadow-[2px_2px_0] shadow-gray-600 hover:bg-red-700"
-                    onClick={() => {
-                      connection?.resetScores();
-                      setShowResetConfirm(false);
+                    on={{
+                      click: () => {
+                        connection?.resetScores();
+                        showResetConfirm = false;
+                        this.update();
+                      },
                     }}
                   >
                     Reset Scores
@@ -417,4 +449,4 @@ export const Lobby = () => {
       )}
     </div>
   );
-};
+}

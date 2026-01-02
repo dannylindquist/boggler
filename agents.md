@@ -7,9 +7,9 @@ This is a real-time multiplayer Boggle game built with modern web technologies. 
 ### Tech Stack
 - **Runtime**: Bun
 - **Backend**: Hono (TypeScript web framework)
-- **Frontend**: Preact with TypeScript
+- **Frontend**: @remix-run/component (custom component framework)
 - **Styling**: Tailwind CSS
-- **State Management**: Preact Signals
+- **State Management**: TypedEventTarget from @remix-run/interaction
 - **Real-time Communication**: Server-Sent Events (SSE)
 
 ## Architecture
@@ -25,21 +25,53 @@ This is a real-time multiplayer Boggle game built with modern web technologies. 
 ├── src/                   # Frontend application
 │   ├── app.tsx            # Main app component
 │   ├── main.tsx           # Frontend entry point
-│   ├── connection.ts      # WebSocket/SSE connection management
+│   ├── connection.ts      # SSE connection management
+│   ├── ConnectionProvider.tsx # Context provider for connection
 │   ├── toast.tsx          # Toast notification system
-│   ├── useSelection.ts    # Touch/mouse selection logic for board
-│   ├── useTime.tsx        # Timer utilities
+│   ├── selection.ts       # Touch/mouse selection controller for board
 │   └── routes/            # Page components
 │       ├── home.tsx       # Player name entry
 │       ├── lobby.tsx      # Game lobby and score display
 │       ├── board.tsx      # Game board interface
-│       └── timer.tsx      # Game timers
+│       ├── timer.tsx      # Game timers
+│       └── test.tsx       # Component test page
 ├── solver/                # Word validation and board solving
 │   ├── solveBoard.ts      # Board solver algorithm
 │   ├── tree.ts           # Radix tree for word lookup
 │   └── words.txt         # Dictionary file
 └── dist/                  # Built frontend assets
 ```
+
+## Component Pattern
+
+The frontend uses `@remix-run/component` with a Handle-based pattern:
+
+### Component Structure
+```typescript
+import { Handle } from "@remix-run/component";
+
+export function MyComponent(this: Handle, { prop }: { prop: string }) {
+  // Instance variables (re-created on each mount)
+  let localState = 0;
+
+  // Subscribe to events from controllers/connections
+  this.on(someEventTarget, {
+    eventName: () => this.update(), // Trigger re-render
+  });
+
+  // Return a render function (called on each update)
+  return () => (
+    <div>{prop} - {localState}</div>
+  );
+}
+```
+
+### Key Patterns
+- **Components**: Functions with `this: Handle` that return render functions
+- **Event Handling**: Use `on={{ eventName: handler }}` syntax on elements
+- **State Updates**: Call `this.update()` to trigger re-renders
+- **Event Subscriptions**: Use `this.on(target, { event: handler })` to subscribe to TypedEventTarget events
+- **Context**: Use `this.context.set(value)` and `this.context.get(ProviderFunction)` for dependency injection
 
 ## Game Flow
 
@@ -105,14 +137,16 @@ This is a real-time multiplayer Boggle game built with modern web technologies. 
 ### Core Components
 
 #### `App` (`src/app.tsx`)
-- Root component with connection context provider
+- Root component that creates the ConnectionModal instance
+- Provides connection via ConnectionProvider context
 - Renders `Home` or `Lobby` based on connection state
 - Includes global `ToastContainer`
+- Handles routing (including test page at `#test`)
 
 #### `Home` (`src/routes/home.tsx`)
 - Player name entry form
 - Handles initial connection to game server
-- Simple, focused interface for joining
+- Uses `this.context.get(ConnectionProvider)` to access connection
 
 #### `Lobby` (`src/routes/lobby.tsx`)
 - Multi-state component handling:
@@ -120,38 +154,44 @@ This is a real-time multiplayer Boggle game built with modern web technologies. 
   - **Starting**: Countdown timer
   - **Started**: Game board
   - **Finished**: Score table with detailed breakdown
+- Subscribes to connection state changes via `this.on()`
 - Complex scoring display with duplicate word handling
 
 #### `Board` (`src/routes/board.tsx`)
 - 4x4 interactive letter grid
-- Integrates with `useSelection` for word formation
+- Uses `SelectionController` for word formation
 - Shows minimum word length and game timer
-- Visual feedback for selected letters
+- Visual feedback for selected letters via `data-selected` attribute
 
-### Hooks and Utilities
+### Controllers and Utilities
 
-#### `useSelection` (`src/useSelection.ts`)
-- Handles touch/mouse interaction with game board
+#### `SelectionController` (`src/selection.ts`)
+- Extends `TypedEventTarget` for event-based state management
+- Handles touch interaction with game board
 - Validates adjacent letter selection (including diagonals)
-- Manages selection state and word submission
+- Emits `change` and `wordSelected` events
 - Supports backtracking by touching previous letter
 
-#### `useTime` (`src/useTime.tsx`)
-- Real-time countdown timer
-- Updates every 100ms for smooth display
-- Calculates remaining seconds from timestamp
-
 #### `ConnectionModal` (`src/connection.ts`)
+- Extends `TypedEventTarget` for reactive updates
 - Manages SSE connection to server
 - Handles all API communication
 - Validates words against solved board
-- Provides toast feedback for word submissions
+- Emits `stateChange` and `connectionChange` events
+
+#### `ConnectionProvider` (`src/ConnectionProvider.tsx`)
+- Context provider component for sharing connection instance
+- Uses `this.context.set(connection)` to provide to children
 
 #### Toast System (`src/toast.tsx`)
+- `ToastController` class extends `TypedEventTarget`
 - Global notification system
 - Auto-dismissing messages (3s default)
-- Success/error states with appropriate styling
-- Used for word validation feedback
+- Success/error/warning states with appropriate styling
+
+#### Timer Components (`src/routes/timer.tsx`)
+- `StartTimer`: Countdown before game starts
+- `GameTimer`: Game duration countdown with color-coded urgency
 
 ## Game Logic
 
@@ -242,12 +282,12 @@ bun run serve
 1. **Connection problems**: Check SSE setup in `api/server.ts` and `src/connection.ts`
 2. **Word validation**: Verify `solver/` logic and dictionary file
 3. **Scoring discrepancies**: Check calculation in `src/routes/lobby.tsx`
-4. **UI state issues**: Examine Preact signals and component re-renders
+4. **UI state issues**: Ensure `this.update()` is called after state changes, check event subscriptions
 
 ### Performance Optimization
 1. **Board generation**: Adjust quality thresholds in `api/game.ts`
 2. **Word lookup**: Optimize RadixTree in `solver/tree.ts`
-3. **Frontend updates**: Minimize unnecessary re-renders with signals
+3. **Frontend updates**: Minimize unnecessary `this.update()` calls
 4. **Network**: Consider WebSocket upgrade from SSE for bidirectional needs
 
 ## Security Considerations
@@ -256,7 +296,6 @@ bun run serve
 - **Rate limiting**: Consider adding for word submissions
 - **Name uniqueness**: Enforced to prevent conflicts
 - **Game state integrity**: Server is authoritative source
-- **XSS prevention**: Preact provides built-in protection
 
 ## Deployment
 
