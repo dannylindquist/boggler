@@ -11,7 +11,6 @@ export function Lobby(this: Handle) {
   const connection = this.context.get(ConnectionProvider);
   let showResetConfirm = false;
   let showAllWordsDialog = false;
-  let selectedWordLength: number | null = null;
 
   this.on(connection, {
     stateChange: () => this.update(),
@@ -32,7 +31,6 @@ export function Lobby(this: Handle) {
             }}
             onShowAllWords={() => {
               showAllWordsDialog = true;
-              selectedWordLength = null;
               this.update();
             }}
           />
@@ -48,11 +46,6 @@ export function Lobby(this: Handle) {
 
           {showAllWordsDialog && (
             <AllWordsDialog
-              selectedWordLength={selectedWordLength}
-              onSelectWordLength={(length) => {
-                selectedWordLength = length;
-                this.update();
-              }}
               onClose={() => {
                 showAllWordsDialog = false;
                 this.update();

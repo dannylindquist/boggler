@@ -2,18 +2,14 @@ import { ConnectionProvider } from "@/ConnectionProvider.tsx";
 import { Handle } from "@remix-run/component";
 
 interface AllWordsDialogProps {
-  selectedWordLength: number | null;
-  onSelectWordLength: (length: number | null) => void;
   onClose: () => void;
 }
 
-export function AllWordsDialog(
-  this: Handle,
-  { selectedWordLength, onSelectWordLength, onClose }: AllWordsDialogProps
-) {
+export function AllWordsDialog(this: Handle) {
   const connection = this.context.get(ConnectionProvider);
+  let selectedWordLength: number | null = null;
 
-  return () => {
+  return ({ onClose }: AllWordsDialogProps) => {
     const wordList = connection?.state?.wordList || {};
     const minWordLength = connection?.state?.minWordLength || 3;
     const foundWords = connection?.state?.scores?.foundWords || {};
@@ -154,7 +150,10 @@ export function AllWordsDialog(
                   : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
               }`}
               on={{
-                click: () => onSelectWordLength(null),
+                click: () => {
+                  selectedWordLength = null;
+                  this.update();
+                },
               }}
             >
               All
@@ -169,7 +168,10 @@ export function AllWordsDialog(
                     : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                 }`}
                 on={{
-                  click: () => onSelectWordLength(len),
+                  click: () => {
+                    selectedWordLength = len;
+                    this.update();
+                  },
                 }}
               >
                 {len} letters ({(wordList[len] || []).length})
