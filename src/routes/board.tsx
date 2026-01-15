@@ -21,7 +21,7 @@ export function Board(this: Handle) {
   return () => (
     <div class="px-2">
       <div class="text-center mb-4">
-        <p class="text-sm text-gray-700">
+        <p class="text-sm text-gray-700 dark:text-gray-300">
           Minimum word length: <span class="font-bold">{minWordLength}</span>{" "}
           letters
         </p>
@@ -31,8 +31,12 @@ export function Board(this: Handle) {
           touchstart: (event) => selectionController.handleTouchStart(event),
           touchmove: (event) => selectionController.handleTouchMove(event),
           touchend: (event) => selectionController.handleTouchEnd(event),
+          mousedown: (event) => selectionController.handleMouseDown(event),
+          mousemove: (event) => selectionController.handleMouseMove(event),
+          mouseup: (event) => selectionController.handleMouseUp(event),
+          mouseleave: (event) => selectionController.handleMouseLeave(event),
         }}
-        class="grid grid-cols-4 aspect-square bg-gray-400 mx-auto max-w-[400px] gap-0.5 border rounded-xl overflow-hidden shadow-[4px_4px_0] shadow-gray-600"
+        class="grid grid-cols-4 aspect-square bg-gray-400 dark:bg-gray-600 mx-auto max-w-[400px] gap-0.5 border dark:border-gray-600 rounded-xl overflow-hidden shadow-[4px_4px_0] shadow-gray-600 dark:shadow-gray-950 select-none"
       >
         {connection?.state?.board.map((row, index) => (
           <div
@@ -44,7 +48,7 @@ export function Board(this: Handle) {
                 ? true
                 : undefined
             }
-            class="aspect-square grid place-items-center content-center text-gray-900 bg-gray-50 text-3xl data-selected:bg-yellow-400"
+            class="aspect-square grid place-items-center content-center text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 text-3xl data-selected:bg-yellow-400 data-selected:text-gray-900"
           >
             {row}
           </div>

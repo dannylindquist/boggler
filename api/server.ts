@@ -29,8 +29,9 @@ app.get(
 
 app.get("/api/connect/:name", (c) => {
   const name = c.req.param("name");
+  // If member already exists, remove them first (allows reconnection)
   if (room.hasMember(name)) {
-    return c.text("name already taken", 409);
+    room.removeMember(name);
   }
   if (!c.req.header("Accept")?.includes("text/event-stream")) {
     return c.text("need text/event-stream in accept header", 400);

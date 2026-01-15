@@ -60,8 +60,8 @@ export function GameTimer(this: Handle) {
     }
 
     return (
-      <div class="w-fit mx-auto text-center mt-4 p-3 rounded-lg bg-white shadow-[4px_4px_0] shadow-gray-600">
-        <p class="text-sm text-gray-700 mb-1">Time Remaining</p>
+      <div class="w-fit mx-auto text-center mt-4 p-3 rounded-lg bg-white dark:bg-gray-800 shadow-[4px_4px_0] shadow-gray-600 dark:shadow-gray-950">
+        <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">Time Remaining</p>
         <p
           class={`text-2xl font-bold ${
             isVeryLowTime

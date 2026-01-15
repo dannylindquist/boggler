@@ -57,13 +57,16 @@ const isSelectable = (index: number, selected: number[]) => {
   return canMove;
 };
 
-const getClosestCell = (event: TouchEvent): HTMLElement | null => {
+const getClosestCellFromTouch = (event: TouchEvent): HTMLElement | null => {
   if (event.touches.length > 1) {
     return null;
   }
   const [touch] = event.touches;
-  const hoveredElement =
-    document.elementsFromPoint(touch.clientX, touch.clientY)[0];
+  return getClosestCellFromPoint(touch.clientX, touch.clientY);
+};
+
+const getClosestCellFromPoint = (x: number, y: number): HTMLElement | null => {
+  const hoveredElement = document.elementsFromPoint(x, y)[0];
   if (!hoveredElement || !(hoveredElement instanceof HTMLElement)) {
     return null;
   }
@@ -81,37 +84,33 @@ export class WordSelecteldEvent extends Event {
 
 export class SelectionController extends TypedEventTarget<{ change: Event, wordSelected: WordSelecteldEvent }> {
   touchedCells: number[] = [];
+  isDragging = false;
 
-  handleTouchEnd(event: TouchEvent) {
-    if(this.touchedCells.length > 2) {
+  private finishSelection() {
+    if (this.touchedCells.length > 2) {
       this.dispatchEvent(new WordSelecteldEvent(this.touchedCells));
     }
     this.dispatchEvent(new Event("change"));
     this.touchedCells = [];
+    this.isDragging = false;
   }
 
-  handleTouchStart(event: TouchEvent) {
-    event.preventDefault();
-    const cell = getClosestCell(event);
+  private startSelection(cell: HTMLElement | null) {
     if (cell instanceof HTMLElement) {
       const cellIndex = cell.dataset!.index;
       if (typeof cellIndex === "string") {
         this.touchedCells.push(+cellIndex);
+        this.isDragging = true;
         this.dispatchEvent(new Event("change"));
       }
     }
   }
 
-  handleTouchMove(event: TouchEvent) {
-    // we will handle touches
-    event.preventDefault();
-    const cell = getClosestCell(event);
+  private moveSelection(cell: HTMLElement | null, x: number, y: number) {
+    if (!this.isDragging) return;
+    
     if (cell instanceof HTMLElement) {
-      const [touch] = event.touches;
-      const enteredEnoughThreshold = isWithinThreshold(cell, {
-        x: touch.clientX,
-        y: touch.clientY,
-      }, 80);
+      const enteredEnoughThreshold = isWithinThreshold(cell, { x, y }, 80);
       const cellIndex = cell.dataset!.index ? +cell.dataset!.index : -1;
       if (
         enteredEnoughThreshold &&
@@ -133,6 +132,47 @@ export class SelectionController extends TypedEventTarget<{ change: Event, wordS
         }
       }
     }
+  }
+
+  // Touch event handlers
+  handleTouchEnd(event: TouchEvent) {
+    this.finishSelection();
+  }
+
+  handleTouchStart(event: TouchEvent) {
+    event.preventDefault();
+    const cell = getClosestCellFromTouch(event);
+    this.startSelection(cell);
+  }
+
+  handleTouchMove(event: TouchEvent) {
+    event.preventDefault();
+    const cell = getClosestCellFromTouch(event);
+    const [touch] = event.touches;
+    this.moveSelection(cell, touch.clientX, touch.clientY);
+  }
+
+  // Mouse event handlers
+  handleMouseDown(event: MouseEvent) {
+    event.preventDefault();
+    const cell = getClosestCellFromPoint(event.clientX, event.clientY);
+    this.startSelection(cell);
+  }
+
+  handleMouseMove(event: MouseEvent) {
+    if (!this.isDragging) return;
+    const cell = getClosestCellFromPoint(event.clientX, event.clientY);
+    this.moveSelection(cell, event.clientX, event.clientY);
+  }
+
+  handleMouseUp(event: MouseEvent) {
+    if (!this.isDragging) return;
+    this.finishSelection();
+  }
+
+  handleMouseLeave(event: MouseEvent) {
+    if (!this.isDragging) return;
+    this.finishSelection();
   }
 }
 

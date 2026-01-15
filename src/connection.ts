@@ -8,8 +8,11 @@ type ConnectionModelEvents = {
   connectionChange: Event;
 }
 
+const STORAGE_KEY = 'boggle_player_name';
+
 export class ConnectionModal extends TypedEventTarget<ConnectionModelEvents> {
   uuid = '';
+  playerName = '';
   state:
      {
       board: string[];
@@ -37,6 +40,22 @@ export class ConnectionModal extends TypedEventTarget<ConnectionModelEvents> {
   abortController: AbortController | undefined = undefined;
   constructor() {
     super();
+  }
+
+  static getStoredName(): string | null {
+    return localStorage.getItem(STORAGE_KEY);
+  }
+
+  static clearStoredName(): void {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  logout() {
+    ConnectionModal.clearStoredName();
+    this.playerName = '';
+    this.disconnect();
+    this.isConnected = false;
+    this.dispatchEvent(new Event("connectionChange"));
   }
 
 
@@ -179,6 +198,8 @@ export class ConnectionModal extends TypedEventTarget<ConnectionModelEvents> {
       this.es.addEventListener("open", () => {
         console.log("connection opened");
         this.isConnected = true;
+        this.playerName = name;
+        localStorage.setItem(STORAGE_KEY, name);
         this.dispatchEvent(new Event("connectionChange"));
         res(true);
       }, { signal });

@@ -6,6 +6,8 @@
     "dev": "NODE_ENV=development bun run --watch api/main.ts",
     "build": "bun run type-check",
     "serve": "bun run api/main.ts",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
     "type-check": "bunx tsc --noEmit",
     "type-check:watch": "bunx tsc --noEmit --watch"
   },
