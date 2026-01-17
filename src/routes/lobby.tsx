@@ -11,9 +11,19 @@ export function Lobby(this: Handle) {
   const connection = this.context.get(ConnectionProvider);
   let showResetConfirm = false;
   let showAllWordsDialog = false;
+  let previousState: string | undefined = connection?.state?.state;
 
   this.on(connection, {
-    stateChange: () => this.update(),
+    stateChange: () => {
+      const currentState = connection?.state?.state;
+      // Reset modal states when transitioning away from "finished"
+      if (previousState === "finished" && currentState !== "finished") {
+        showResetConfirm = false;
+        showAllWordsDialog = false;
+      }
+      previousState = currentState;
+      this.update();
+    },
     connectionChange: () => this.update(),
   });
 
